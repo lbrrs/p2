@@ -18,6 +18,8 @@ def extract_category_data(url):
         tmp = re.sub('_\w*', '', tmp)
         if tmp != 'catalogue/category/books':
             extract_category[tmp] = 'http://books.toscrape.com/' + link.get('href')
+        if len(extract_category) >= 2:
+            break
 
     print(extract_category)
 
@@ -88,10 +90,9 @@ def extract_book_data(book):
             print(stars)
             print(p_texte[3])
             '''
-            book_data[key].append([book, link, title, image_link, price_including_tax, price_excluding_tax, stock, description,
+            book_data[key].append([key, link, title, image_link, price_including_tax, price_excluding_tax, stock, description,
                                    stars, universal_product_code])
-        #debug
-        return book_data
+
     return book_data
 
 
@@ -99,17 +100,19 @@ def extract_book_data(book):
 
 def main(book_data):
     # boucle cat
-    for key, links in book_data.items():
-        with open(f"./csv/{key}.csv", 'w', encoding='UTF8', newline='') as csvfile:
-            header = ['category', 'product_page_url', 'title', 'image_url', 'price_including_tax',
-                      'price_excluding_tax',
-                      'number_available', 'product_description', 'review_rating', 'universal_product_code']
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(header)
+    for b in book_data:
+        for links in book_data[b]:
+            key = b
+            with open(f"./csv/{key}.csv", 'w', encoding='UTF8', newline='') as csvfile:
+                header = ['category', 'product_page_url', 'title', 'image_url', 'price_including_tax',
+                          'price_excluding_tax',
+                          'number_available', 'product_description', 'review_rating', 'universal_product_code']
+                csv_writer = csv.writer(csvfile)
+                csv_writer.writerow(header)
 
-            # boucle livre
-            for link in links:
-                csv_writer.writerow(link)
+                # boucle livre
+                for link in links:
+                    csv_writer.writerow(link)
 
 
 url = "http://books.toscrape.com/index.html"
